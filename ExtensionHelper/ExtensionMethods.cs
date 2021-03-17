@@ -1,7 +1,10 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Collections.Specialized;
 using System.Linq;
 using System.Reflection;
+using System.Runtime.CompilerServices;
+using System.Web;
 
 namespace ExtensionHelper
 {
@@ -36,7 +39,7 @@ namespace ExtensionHelper
         }
         public static T ToEnumType<T,K>(this string source) where T : struct
                                                             where K : Attribute
-        {   
+        {
             Type type = typeof(T);
             if (!Enum.GetNames(type).Contains(source, StringComparer.InvariantCultureIgnoreCase))
             {
@@ -241,14 +244,14 @@ namespace ExtensionHelper
             if (size < Math.Pow(1024, 6)) { return (size / Math.Pow(1024, 5)).ToString("F0") + "PB"; }
             return (size / Math.Pow(1024, 6)).ToString("F0") + "EB";
         }
-        public static IEnumerable<TSource> FromHierarchy<TSource>(this TSource source,Func<TSource, TSource> nextItem, Func<TSource, bool> canContinue)
+        public static IEnumerable<TSource> FromHierarchy<TSource>(this TSource source, Func<TSource, TSource> nextItem, Func<TSource, bool> canContinue)
         {
             for (var current = source; canContinue(current); current = nextItem(current))
             {
                 yield return current;
             }
         }
-        public static IEnumerable<TSource> FromHierarchy<TSource>(this TSource source,Func<TSource, TSource> nextItem) where TSource : class
+        public static IEnumerable<TSource> FromHierarchy<TSource>(this TSource source, Func<TSource, TSource> nextItem) where TSource : class
         {
             return FromHierarchy(source, nextItem, s => s != null);
         }
@@ -257,6 +260,42 @@ namespace ExtensionHelper
             var messages = exception.FromHierarchy(ex => ex.InnerException)
                 .Select(ex => ex.Message);
             return String.Join(Environment.NewLine, messages);
+        }
+        public static bool IsNumeric(this string value)
+        {
+            if (value.Trim().IsNullOrEmpty())
+                return false;
+
+            return value.All(char.IsNumber);
+        }
+
+        public static Uri Append(this Uri uri, params string[] paths)
+        {
+            return  new Uri(paths.Aggregate(uri.AbsolutePath,(current,path) => $"{current.TrimEnd('/')}/{path.TrimStart('/')}"));
+        }
+        public static Uri ExtendQuery(this Uri uri, IEnumerable<KeyValuePair<string, string>> values)
+        {
+            if (values.IsNull())
+                return uri;
+
+            var baseUrl = uri.ToString();
+            var queryString = string.Empty;
+            if (baseUrl.Contains("?"))
+            {
+                var urlSplit = baseUrl.Split('?');
+                baseUrl = urlSplit[0];
+                queryString = urlSplit.Length > 1 ? urlSplit[1] : string.Empty;
+            }
+
+            NameValueCollection queryCollection = HttpUtility.ParseQueryString(queryString);
+            foreach (KeyValuePair<string, string> kvp in values)
+            {
+                queryCollection[kvp.Key] = kvp.Value;
+            }
+            var uriKind = uri.IsAbsoluteUri ? UriKind.Absolute : UriKind.Relative;
+            return queryCollection.Count == 0
+                ? new Uri(baseUrl, uriKind)
+                : new Uri(string.Format("{0}?{1}", baseUrl, queryCollection), uriKind);
         }
     }
 }
