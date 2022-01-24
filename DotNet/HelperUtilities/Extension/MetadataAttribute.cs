@@ -1,10 +1,6 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
-namespace ExtensionHelper
+namespace HelperUtilities
 {
     [AttributeUsage(AttributeTargets.Field, Inherited = false, AllowMultiple = true)]
     public class MetadataAttribute : Attribute

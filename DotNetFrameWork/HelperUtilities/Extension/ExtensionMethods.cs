@@ -3,10 +3,9 @@ using System.Collections.Generic;
 using System.Collections.Specialized;
 using System.Linq;
 using System.Reflection;
-using System.Runtime.CompilerServices;
-using System.Web;
+using System.Text;
 
-namespace ExtensionHelper
+namespace HelperUtilities
 {
     public static class ExtensionMethods
     {
@@ -38,7 +37,7 @@ namespace ExtensionHelper
             if (result.IsNull())
                 return default(T);
             else
-                return (T) result;
+                return (T)result;
         }
 
         public static T ToEnumType<T, K>(this string source) where T : struct
@@ -57,7 +56,7 @@ namespace ExtensionHelper
             if (result.IsNull())
                 return default(T);
             else
-                return (T) result;
+                return (T)result;
         }
 
         private static string GetAttributeOfType<T>(this Type type, string source) where T : Attribute
@@ -68,7 +67,7 @@ namespace ExtensionHelper
                 var attributes = item.GetCustomAttributes(typeof(T), false);
                 if (attributes.Length > 0)
                 {
-                    var attribute = (T) attributes[0];
+                    var attribute = (T)attributes[0];
                     PropertyInfo[] props = typeof(T).GetProperties();
                     foreach (var prop in props)
                     {
@@ -100,6 +99,13 @@ namespace ExtensionHelper
         public static bool IsNullOrWhiteSpace(this string value)
         {
             return string.IsNullOrWhiteSpace(value);
+        }
+        public static string ToLowerFirstChar(this string input)
+        {
+            if (string.IsNullOrEmpty(input))
+                return input;
+
+            return char.ToLower(input[0]) + input.Substring(1);
         }
 
         public static string Fill(this string name, params string[] parameters)
@@ -147,6 +153,39 @@ namespace ExtensionHelper
         public static string RemoveFirst(this String instr, int number)
         {
             return instr.Substring(number);
+        }
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="value"></param>
+        /// <param name="alphas">(abcçdefgğhıijklmnoöpqrsştuüvwxyzABCÇDEFGĞHIİJKLMNOÖPQRSŞTUÜVWXYZ)</param>
+        /// <param name="numerics">(0123456789)</param>
+        /// <param name="dashes">(-)</param>
+        /// <param name="underlines">(_)</param>
+        /// <param name="spaces">(" ")</param>
+        /// <param name="periods">(.)</param>
+        /// <returns></returns>
+        public static string RemoveExcept(this string value, bool alphas = false, bool numerics = false, bool dashes = false, bool underlines = false, bool spaces = false, bool periods = false)
+        {
+            if (string.IsNullOrWhiteSpace(value)) return value;
+
+            if (new[] { alphas, numerics, dashes, underlines, spaces, periods }.All(x => x == false)) return value;
+
+            var whitelistChars = new HashSet<char>(string.Concat(
+                alphas ? "abcçdefgğhıijklmnoöpqrsştuüvwxyzABCÇDEFGĞHIİJKLMNOÖPQRSŞTUÜVWXYZ" : "",
+                numerics ? "0123456789" : "",
+                dashes ? "-" : "",
+                underlines ? "_" : "",
+                periods ? "." : "",
+                spaces ? " " : ""
+            ).ToCharArray());
+
+            var scrubbedValue = value.Aggregate(new StringBuilder(), (sb, @char) =>
+            {
+                if (whitelistChars.Contains(@char)) sb.Append(@char);
+                return sb;
+            }).ToString();
+            return scrubbedValue;
         }
 
         public static bool Between(this DateTime dt, DateTime rangeBeg, DateTime rangeEnd)
@@ -203,11 +242,11 @@ namespace ExtensionHelper
 
             if (delta < 31104000) // 12 * 30 * 24 * 60 * 60
             {
-                int months = Convert.ToInt32(Math.Floor((double) ts.Days / 30));
+                int months = Convert.ToInt32(Math.Floor((double)ts.Days / 30));
                 return months <= 1 ? "one month ago" : months + " months ago";
             }
 
-            var years = Convert.ToInt32(Math.Floor((double) ts.Days / 365));
+            var years = Convert.ToInt32(Math.Floor((double)ts.Days / 365));
             return years <= 1 ? "one year ago" : years + " years ago";
         }
 
@@ -233,7 +272,7 @@ namespace ExtensionHelper
         {
             try
             {
-                return (((int) (object) type & (int) (object) value) == (int) (object) value);
+                return (((int)(object)type & (int)(object)value) == (int)(object)value);
             }
             catch
             {
@@ -245,7 +284,7 @@ namespace ExtensionHelper
         {
             try
             {
-                return (int) (object) type == (int) (object) value;
+                return (int)(object)type == (int)(object)value;
             }
             catch
             {
@@ -257,7 +296,7 @@ namespace ExtensionHelper
         {
             try
             {
-                return (T) (object) (((int) (object) type | (int) (object) value));
+                return (T)(object)(((int)(object)type | (int)(object)value));
             }
             catch (Exception ex)
             {
@@ -273,7 +312,7 @@ namespace ExtensionHelper
         {
             try
             {
-                return (T) (object) (((int) (object) type & ~(int) (object) value));
+                return (T)(object)(((int)(object)type & ~(int)(object)value));
             }
             catch (Exception ex)
             {
@@ -335,7 +374,7 @@ namespace ExtensionHelper
             return FromHierarchy(source, nextItem, s => s != null);
         }
 
-        public static string GetaAllMessages(this Exception exception)
+        public static string GetAllMessages(this Exception exception)
         {
             var messages = exception.FromHierarchy(ex => ex.InnerException)
                 .Select(ex => ex.Message);
@@ -352,8 +391,7 @@ namespace ExtensionHelper
 
         public static Uri Append(this Uri uri, params string[] paths)
         {
-            return new Uri(paths.Aggregate(uri.AbsolutePath,
-                (current, path) => $"{current.TrimEnd('/')}/{path.TrimStart('/')}"));
+            return new Uri(paths.Aggregate(uri.AbsoluteUri, (current, path) => $"{current.TrimEnd('/')}/{path.TrimStart('/')}"));
         }
 
         public static Uri ExtendQuery(this Uri uri, IEnumerable<KeyValuePair<string, string>> values)
@@ -380,6 +418,73 @@ namespace ExtensionHelper
             return queryCollection.Count == 0
                 ? new Uri(baseUrl, uriKind)
                 : new Uri(string.Format("{0}?{1}", baseUrl, queryCollection), uriKind);
+        }
+
+        public static IDictionary<string, string> ToKeyValuePairWithOutNullOrEmpty<T>(this T obj) where T : class
+        {
+            return obj
+                    .GetType()
+                    .GetProperties()
+                    .Where<PropertyInfo>(prop =>
+                    {
+                        return prop.PropertyType.IsVariableType()
+                        && (
+                        prop.PropertyType == typeof(string)
+                            ? !((string)prop.GetValue(obj)).IsNullOrEmpty()
+                            : prop.GetValue(obj) != null
+                            );
+                    })
+                    .ToDictionary<PropertyInfo, string, string>(key => key.Name.ToLowerFirstChar(), value => value.GetValue(obj).ToString());
+        }
+
+        public static bool IsVariableType(this Type type)
+        {
+            if (type == typeof(Boolean))
+                return true;
+
+            if (type == typeof(Char))
+                return true;
+
+            if (type == typeof(SByte))
+                return true;
+
+            if (type == typeof(Byte))
+                return true;
+
+            if (type == typeof(Int16))
+                return true;
+
+            if (type == typeof(UInt16))
+                return true;
+
+            if (type == typeof(Int32))
+                return true;
+
+            if (type == typeof(UInt32))
+                return true;
+
+            if (type == typeof(Int64))
+                return true;
+
+            if (type == typeof(UInt64))
+                return true;
+
+            if (type == typeof(Single))
+                return true;
+
+            if (type == typeof(Double))
+                return true;
+
+            if (type == typeof(Decimal))
+                return true;
+
+            if (type == typeof(DateTime))
+                return true;
+
+            if (type == typeof(String))
+                return true;
+
+            return false;
         }
     }
 }
