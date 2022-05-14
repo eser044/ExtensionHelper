@@ -24,13 +24,13 @@ namespace HelperUtilities
             return fileInfos;
         }
 
-        public static TTarget Mapper<TSource, TTarget>(TSource source) where TTarget : new() where TSource : new()
+        public static TTarget Mapper<TSource, TTarget>(TSource source) where TTarget : class where TSource : class
         {
             Func<TSource, TTarget> mapper = CreateMapper<TSource, TTarget>();
             return mapper(source);
         }
 
-        public static Func<TSource, TTarget> CreateMapper<TSource, TTarget>() where TTarget : new() where TSource : new()
+        public static Func<TSource, TTarget> CreateMapper<TSource, TTarget>() where TTarget : class where TSource : class
         {
             var sourceProperties = typeof(TSource)
                 .GetProperties()
