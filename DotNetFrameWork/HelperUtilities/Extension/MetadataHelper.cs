@@ -1,7 +1,8 @@
-﻿using System.Collections.Generic;
+﻿using HelperUtilities.Extension;
+using System.Collections.Generic;
 using System.Linq;
 
-namespace HelperUtilities
+namespace HelperUtilities.Extension
 {
     public static class MetadataHelper
     {
@@ -16,8 +17,8 @@ namespace HelperUtilities
                 value.GetType().GetField(value.ToString()).GetCustomAttributes(typeof(MetadataAttribute), true);
             return attribs.Any()
                 ? (from p in (MetadataAttribute[])attribs
-                    where p.Description.ToLower() == metaDataDescription.ToLower()
-                    select p.MetaData).ToList()
+                   where p.Description.ToLower() == metaDataDescription.ToLower()
+                   select p.MetaData).ToList()
                 : new List<string>();
         }
 

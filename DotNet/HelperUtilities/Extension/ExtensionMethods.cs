@@ -6,7 +6,7 @@ using System.Reflection;
 using System.Text;
 using System.Web;
 
-namespace HelperUtilities
+namespace HelperUtilities.Extension
 {
     public static class ExtensionMethods
     {
@@ -31,12 +31,12 @@ namespace HelperUtilities
         {
             Type type = typeof(T);
             if (!Enum.GetNames(type).Contains(source, StringComparer.InvariantCultureIgnoreCase))
-                return default(T);
+                return default;
 
             object result = Enum.Parse(type, source, true);
 
             if (result.IsNull())
-                return default(T);
+                return default;
             else
                 return (T)result;
         }
@@ -49,13 +49,13 @@ namespace HelperUtilities
             {
                 source = type.GetAttributeOfType<K>(source);
                 if (!Enum.GetNames(type).Contains(source, StringComparer.InvariantCultureIgnoreCase))
-                    return default(T);
+                    return default;
             }
 
             object result = Enum.Parse(type, source, true);
 
             if (result.IsNull())
-                return default(T);
+                return default;
             else
                 return (T)result;
         }
@@ -84,7 +84,7 @@ namespace HelperUtilities
 
         public static bool IsNull(this object obj)
         {
-            return (obj is null);
+            return obj is null;
         }
 
         public static bool IsNotNull(this object obj)
@@ -136,22 +136,22 @@ namespace HelperUtilities
                     return false;
             }
         }
-        public static string RemoveLastCharacter(this String instr)
+        public static string RemoveLastCharacter(this string instr)
         {
             return instr.Substring(0, instr.Length - 1);
         }
 
-        public static string RemoveLast(this String instr, int number)
+        public static string RemoveLast(this string instr, int number)
         {
             return instr.Substring(0, instr.Length - number);
         }
 
-        public static string RemoveFirstCharacter(this String instr)
+        public static string RemoveFirstCharacter(this string instr)
         {
             return instr.Substring(1);
         }
 
-        public static string RemoveFirst(this String instr, int number)
+        public static string RemoveFirst(this string instr, int number)
         {
             return instr.Substring(number);
         }
@@ -273,7 +273,7 @@ namespace HelperUtilities
         {
             try
             {
-                return (((int)(object)type & (int)(object)value) == (int)(object)value);
+                return ((int)(object)type & (int)(object)value) == (int)(object)value;
             }
             catch
             {
@@ -297,7 +297,7 @@ namespace HelperUtilities
         {
             try
             {
-                return (T)(object)(((int)(object)type | (int)(object)value));
+                return (T)(object)((int)(object)type | (int)(object)value);
             }
             catch (Exception ex)
             {
@@ -309,11 +309,11 @@ namespace HelperUtilities
             }
         }
 
-        public static T Remove<T>(this System.Enum type, T value)
+        public static T Remove<T>(this Enum type, T value)
         {
             try
             {
-                return (T)(object)(((int)(object)type & ~(int)(object)value));
+                return (T)(object)((int)(object)type & ~(int)(object)value);
             }
             catch (Exception ex)
             {
@@ -329,7 +329,7 @@ namespace HelperUtilities
         {
             if (size < 1024)
             {
-                return (size).ToString("F0") + " bytes";
+                return size.ToString("F0") + " bytes";
             }
 
             if (size < Math.Pow(1024, 2))
@@ -372,14 +372,14 @@ namespace HelperUtilities
         public static IEnumerable<TSource> FromHierarchy<TSource>(this TSource source, Func<TSource, TSource> nextItem)
             where TSource : class
         {
-            return FromHierarchy(source, nextItem, s => s != null);
+            return source.FromHierarchy(nextItem, s => s != null);
         }
 
         public static string GetAllMessages(this Exception exception)
         {
             var messages = exception.FromHierarchy(ex => ex.InnerException)
                 .Select(ex => ex.Message);
-            return String.Join(Environment.NewLine, messages);
+            return string.Join(Environment.NewLine, messages);
         }
 
         public static bool IsNumeric(this string value)
@@ -426,7 +426,7 @@ namespace HelperUtilities
             return obj
                     .GetType()
                     .GetProperties()
-                    .Where<PropertyInfo>(prop =>
+                    .Where(prop =>
                     {
                         return prop.PropertyType.IsVariableType()
                         && (
@@ -435,54 +435,54 @@ namespace HelperUtilities
                             : prop.GetValue(obj) != null
                             );
                     })
-                    .ToDictionary<PropertyInfo, string, string>(key => key.Name.ToLowerFirstChar(), value => value.GetValue(obj).ToString());
+                    .ToDictionary(key => key.Name.ToLowerFirstChar(), value => value.GetValue(obj).ToString());
         }
 
         public static bool IsVariableType(this Type type)
         {
-            if (type == typeof(Boolean))
+            if (type == typeof(bool))
                 return true;
 
-            if (type == typeof(Char))
+            if (type == typeof(char))
                 return true;
 
-            if (type == typeof(SByte))
+            if (type == typeof(sbyte))
                 return true;
 
-            if (type == typeof(Byte))
+            if (type == typeof(byte))
                 return true;
 
-            if (type == typeof(Int16))
+            if (type == typeof(short))
                 return true;
 
-            if (type == typeof(UInt16))
+            if (type == typeof(ushort))
                 return true;
 
-            if (type == typeof(Int32))
+            if (type == typeof(int))
                 return true;
 
-            if (type == typeof(UInt32))
+            if (type == typeof(uint))
                 return true;
 
-            if (type == typeof(Int64))
+            if (type == typeof(long))
                 return true;
 
-            if (type == typeof(UInt64))
+            if (type == typeof(ulong))
                 return true;
 
-            if (type == typeof(Single))
+            if (type == typeof(float))
                 return true;
 
-            if (type == typeof(Double))
+            if (type == typeof(double))
                 return true;
 
-            if (type == typeof(Decimal))
+            if (type == typeof(decimal))
                 return true;
 
             if (type == typeof(DateTime))
                 return true;
 
-            if (type == typeof(String))
+            if (type == typeof(string))
                 return true;
 
             return false;

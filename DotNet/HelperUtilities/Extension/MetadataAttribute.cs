@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace HelperUtilities
+namespace HelperUtilities.Extension
 {
     [AttributeUsage(AttributeTargets.Field, Inherited = false, AllowMultiple = true)]
     public class MetadataAttribute : Attribute

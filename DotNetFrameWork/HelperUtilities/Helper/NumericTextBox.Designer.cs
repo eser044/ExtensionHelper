@@ -1,5 +1,5 @@
 ﻿
-namespace Helper
+namespace HelperUtilities.Helper
 {
     partial class NumericTextBox
     {

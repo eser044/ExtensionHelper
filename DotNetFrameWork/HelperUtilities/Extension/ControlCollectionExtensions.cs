@@ -1,4 +1,5 @@
-﻿using System;
+﻿using HelperUtilities.Extension;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -6,7 +7,7 @@ using System.Threading.Tasks;
 using System.Windows.Forms;
 using static System.Windows.Forms.Control;
 
-namespace HelperUtilities
+namespace HelperUtilities.Extension
 {
     public static class ControlCollectionExtensions
     {
@@ -27,14 +28,14 @@ namespace HelperUtilities
                 control.Visible = visible;
             }
         }
-        public static void ClearControls(this Control.ControlCollection controls, bool enabled = true, bool visible = true)
+        public static void ClearControls(this ControlCollection controls, bool enabled = true, bool visible = true)
         {
             foreach (Control control in controls)
             {
                 FindAndInvoke(control.GetType(), control, enabled, visible);
             }
         }
-        public static void ClearControls<T>(this Control.ControlCollection controls, bool enabled = true, bool visible = true) where T : Control
+        public static void ClearControls<T>(this ControlCollection controls, bool enabled = true, bool visible = true) where T : Control
         {
             if (!controldefaults.ContainsKey(typeof(T))) return;
 
@@ -46,7 +47,7 @@ namespace HelperUtilities
                 }
             }
         }
-        public static List<T> GetChildControls<T>(this Control.ControlCollection controls) where T : Control
+        public static List<T> GetChildControls<T>(this ControlCollection controls) where T : Control
         {
             List<T> childControlList = new List<T>();
             foreach (Control control in controls)
@@ -58,7 +59,7 @@ namespace HelperUtilities
         public static List<T> GetAllChildControls<T>(this ControlCollection controls) where T : Control
         {
             List<T> childControlList = new List<T>();
-            foreach (Control control in All(controls).ToList())
+            foreach (Control control in controls.All().ToList())
                 if (control is T)
                     childControlList.Add((T)control);
 
@@ -92,7 +93,7 @@ namespace HelperUtilities
                 }
             }
         }
-        public static void ForEach(this Control.ControlCollection ControlCollection, Action<Control> Action)
+        public static void ForEach(this ControlCollection ControlCollection, Action<Control> Action)
         {
             for (int i = 0; i < ControlCollection.Count; i++)
             {
@@ -100,7 +101,7 @@ namespace HelperUtilities
             }
         }
 
-        public static void ForEach(this Control.ControlCollection ControlCollection, List<Action<Control>> ActionList)
+        public static void ForEach(this ControlCollection ControlCollection, List<Action<Control>> ActionList)
         {
             for (int i = 0; i < ControlCollection.Count; i++)
             {
@@ -110,21 +111,21 @@ namespace HelperUtilities
                 }
             }
         }
-        public static void For(this Control.ControlCollection ControlCollection, int Start, int End, int Step, Action<Control> Action)
+        public static void For(this ControlCollection ControlCollection, int Start, int End, int Step, Action<Control> Action)
         {
             for (int i = Start; i < End; i++)
             {
                 Action.Invoke(ControlCollection[i]);
             }
         }
-        public static void For(this Control.ControlCollection ControlCollection, int Start, Func<int, bool> End, int Step, Action<Control> Action)
+        public static void For(this ControlCollection ControlCollection, int Start, Func<int, bool> End, int Step, Action<Control> Action)
         {
             for (int i = Start; End.Invoke(i); i++)
             {
                 Action.Invoke(ControlCollection[i]);
             }
         }
-        public static List<Control> Where(this Control.ControlCollection ControlCollection, Func<Control, bool> Condition, bool SearchAllChildren)
+        public static List<Control> Where(this ControlCollection ControlCollection, Func<Control, bool> Condition, bool SearchAllChildren)
         {
             List<Control> lstControls = new List<Control>();
             ControlCollection.ForEach(ctrl =>
@@ -138,7 +139,7 @@ namespace HelperUtilities
             });
             return lstControls;
         }
-        public static List<Control> FindControlsByType(this Control.ControlCollection ControlCollection, Type Type, bool SearchAllChildren)
+        public static List<Control> FindControlsByType(this ControlCollection ControlCollection, Type Type, bool SearchAllChildren)
         {
             List<Control> lstControls = new List<Control>();
             ControlCollection.ForEach(ctrl =>
@@ -153,7 +154,7 @@ namespace HelperUtilities
 
             return lstControls;
         }
-        public static List<Control> ToList(this Control.ControlCollection ControlCollection, bool IncludeChildren)
+        public static List<Control> ToList(this ControlCollection ControlCollection, bool IncludeChildren)
         {
             List<Control> lstControls = new List<Control>();
             ControlCollection.ForEach(ctrl =>
