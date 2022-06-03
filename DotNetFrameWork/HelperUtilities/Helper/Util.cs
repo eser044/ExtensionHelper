@@ -1,4 +1,4 @@
-﻿using HelperUtilities.Helper;
+﻿using HelperUtilities;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
@@ -8,7 +8,7 @@ using System.Linq.Expressions;
 using System.Reflection;
 using System.Security.Cryptography;
 
-namespace HelperUtilities
+namespace HelperUtilities.Helper
 {
     public class Util
     {
@@ -110,7 +110,7 @@ namespace HelperUtilities
             {
                 count -= 1;
             }
-            rd.BaseStream.Seek(-1, System.IO.SeekOrigin.Current);
+            rd.BaseStream.Seek(-1, SeekOrigin.Current);
 
             return count;
         }
@@ -154,7 +154,7 @@ namespace HelperUtilities
         {
             int inputBytesSize = inputBytes.Length;
 
-            if ((alignSize != -1) && (inputBytesSize < alignSize))
+            if (alignSize != -1 && inputBytesSize < alignSize)
             {
                 byte[] buf = new byte[alignSize];
                 for (int i = 0; i < inputBytesSize; ++i)
@@ -223,7 +223,7 @@ namespace HelperUtilities
                 CspParameters parms = new CspParameters();
                 parms.Flags = CspProviderFlags.NoFlags;
                 parms.KeyContainerName = Guid.NewGuid().ToString().ToUpperInvariant();
-                parms.ProviderType = ((Environment.OSVersion.Version.Major > 5) || ((Environment.OSVersion.Version.Major == 5) && (Environment.OSVersion.Version.Minor >= 1))) ? 0x18 : 1;
+                parms.ProviderType = Environment.OSVersion.Version.Major > 5 || Environment.OSVersion.Version.Major == 5 && Environment.OSVersion.Version.Minor >= 1 ? 0x18 : 1;
 
                 RSACryptoServiceProvider rsa = new RSACryptoServiceProvider(parms);
                 RSAParameters rsAparams = new RSAParameters();
