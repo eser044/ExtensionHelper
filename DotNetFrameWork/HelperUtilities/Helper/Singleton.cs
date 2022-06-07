@@ -7,10 +7,12 @@ using System.Threading.Tasks;
 
 namespace HelperUtilities.Helper
 {
-    public class Singleton<T> where T : class, new()
+    public class Singleton<T> where T : class
     {
         static object LockObject = new object();
         static T instance;
+        
+        private Singleton() { }
         public static T Instance
         {
             get
